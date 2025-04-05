@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Car, Truck, User, LogIn, LogOut, Sticker , } from 'lucide-react';
+import { Car, User, LogIn, LogOut, Sticker, } from 'lucide-react';
 import { useAuth } from '../context/Authcontext';
 
 const Navbar = () => {
@@ -46,11 +46,25 @@ const Navbar = () => {
                   <Car className="h-5 w-5" />
                   <span>Cars</span>
                 </Link>
-                
-                <Link to="/rentedcars" className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
-                  <Car className="h-5 w-5" />
-                  <span>Rented Vehicles</span>
-                </Link>
+
+                {user?.role === 'admin' ? (
+                  <>
+                    <Link to="/renterdetails" className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
+                      <Car className="h-5 w-5" />
+                      <span>Renter Detail</span>
+                    </Link>
+                    <Link to="/admin/upload" className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
+                      <Car className="h-5 w-5" />
+                      <span>Upload Car</span>
+                    </Link>
+                  </>
+                ) : (
+                  <Link to="/rentedcars" className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
+                    <Car className="h-5 w-5" />
+                    <span>Rented Vehicles</span>
+                  </Link>
+                )}
+
 
                 {/* User profile dropdown */}
                 <div className="relative">

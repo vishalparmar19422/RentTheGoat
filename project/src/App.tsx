@@ -8,6 +8,8 @@ import AdminUpload from './pages/AdminUpload';
 import { useAuth } from './context/Authcontext.tsx';
 import NotFound from './pages/NotFound.tsx';
 import RentedCars from './pages/RentedCars.tsx';
+import RenterDetails from './pages/RenterDetails.tsx';
+import EditCar from './pages/EditCar.tsx';
 
 
 function App() {
@@ -30,7 +32,14 @@ function App() {
           )}
 
           {isAuthenticated && user?.role === "admin" && (
-            <Route path="/admin/upload" element={<AdminUpload />} />
+            <>
+              <Route path="/admin/upload" element={<AdminUpload />} />
+              <Route path="/renterdetails" element={<RenterDetails />} />
+              <Route path="/editcar/:id" element={<EditCar/>} />
+
+
+            </>
+
 
           )}
           <Route path="*" element={<NotFound />} />

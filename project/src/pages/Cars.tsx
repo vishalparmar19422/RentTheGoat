@@ -1,14 +1,12 @@
-import  { useEffect } from 'react';
-import { Car as CarIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Car as CarIcon, Pencil, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/Authcontext';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-
-
-
-
 function Cars() {
-  const { cars, fetchCars, } = useAuth();
+  const { cars, fetchCars, user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCars();
@@ -29,6 +27,23 @@ function Cars() {
       fetchCars();
     } catch (error: any) {
       console.error('Rent car error:', error);
+    }
+  };
+
+  const handleDeleteCar = async (carId: string) => {
+    const confirm = window.confirm('Are you sure you want to delete this car?');
+    if (!confirm) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:3000/api/cars/${carId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      fetchCars();
+    } catch (error: any) {
+      console.error('Delete car error:', error);
     }
   };
 
@@ -56,6 +71,7 @@ function Cars() {
                   className="w-full h-full object-cover"
                 />
               </div>
+
               <div className="p-5">
                 <h2 className="text-xl font-bold text-gray-800 mb-1">{car.name}</h2>
                 <p className="text-gray-600 mb-1">Brand: {car.brand}</p>
@@ -65,12 +81,31 @@ function Cars() {
                   ${car.rentPerDay} <span className="text-sm text-gray-600">/day</span>
                 </div>
 
-                <button
-                  onClick={() => handleRentCar(car._id)}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition-all duration-200"
-                >
-                  Rent Now
-                </button>
+                {user?.role === 'admin' ? (
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => navigate(`/editcar/${car._id}`)}
+                      className="flex-1 flex items-center justify-center gap-1 bg-blue-400 hover:bg-yellow-500 text-white py-2 rounded-lg transition-all duration-200"
+                    >
+                      <Pencil className="w-4 h-4" />
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteCar(car._id)}
+                      className="flex-1 flex items-center justify-center gap-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg transition-all duration-200"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Delete
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => handleRentCar(car._id)}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition-all duration-200"
+                  >
+                    Rent Now
+                  </button>
+                )}
               </div>
             </div>
           ))}

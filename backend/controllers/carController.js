@@ -16,7 +16,7 @@ export const rentCar = async (req, res) => {
         if (!car.available) {
             return res.status(400).json({ message: "Car is already rented" });
         }
-
+        car.rentedBy = req.user._id;
         car.available = false;
         await car.save();
 
@@ -83,7 +83,6 @@ export const addCar = async (req, res) => {
 export const rentedCars = async (req, res) => {
     try {
         const user = await User.findById(req.user._id).populate('rentedCars');
-        console.log(user);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -141,3 +140,52 @@ export const getAllCars = async (req, res) => {
         res.status(500).json({ message: "Failed to fetch cars" });
     }
 };
+
+export const getRentersDetails = async (req, res) => {
+
+    try {
+        const rentedCars = await Car.find({ rentedBy: { $ne: null } }).populate('rentedBy', 'name email');
+
+
+
+
+        const rentersMap = {};
+
+        rentedCars.forEach(car => {
+            const renter = car.rentedBy;
+            if (!renter || !renter._id) return;
+
+            if (!rentersMap[renter._id]) {
+                rentersMap[renter._id] = {
+                    userId: renter._id,
+                    name: renter.name,
+                    email: renter.email,
+                    cars: [],
+                };
+            }
+
+            rentersMap[renter._id].cars.push({
+                name: car.name,
+                brand: car.brand,
+                model: car.model,
+            });
+        });
+
+        res.json(Object.values(rentersMap));
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to get renter data' });
+    }
+}
+
+export const getCarById = async (req, res) => {
+    try {
+        const car = await Car.findById(req.params.id);
+        if (!car) {
+            return res.status(404).json({ message: "Car not found" });
+        }
+        res.json(car);
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching car", error: err.message });
+    }
+}
