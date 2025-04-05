@@ -46,13 +46,10 @@ const Navbar = () => {
                   <Car className="h-5 w-5" />
                   <span>Cars</span>
                 </Link>
-                <Link to="/trucks" className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
-                  <Truck className="h-5 w-5" />
-                  <span>Trucks</span>
-                </Link>
+                
                 <Link to="/rentedcars" className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
                   <Car className="h-5 w-5" />
-                  <span>Rented Cars</span>
+                  <span>Rented Vehicles</span>
                 </Link>
 
                 {/* User profile dropdown */}

@@ -1,3 +1,4 @@
+import { setErrorThrowerOptions } from "@clerk/clerk-react/internal";
 import Car from "../models/Car.js";
 import User from "../models/User.js";
 
@@ -30,33 +31,33 @@ export const rentCar = async (req, res) => {
 
 export const returnCar = async (req, res) => {
     const carId = req.params.id;
-  
+
     try {
-      const car = await Car.findById(carId);
-      const user = await User.findById(req.user._id);
-  
-      if (!car || !user) {
-        return res.status(404).json({ message: "Car or user not found" });
-      }
-  
-      if (!user.rentedCars.includes(car._id)) {
-        return res.status(400).json({ message: "You haven't rented this car" });
-      }
-  
-      car.available = true;
-      await car.save();
-  
-      user.rentedCars = user.rentedCars.filter(
-        (rentedId) => rentedId.toString() !== car._id.toString()
-      );
-      await user.save();
-  
-      res.json({ message: "Car returned successfully", car });
+        const car = await Car.findById(carId);
+        const user = await User.findById(req.user._id);
+
+        if (!car || !user) {
+            return res.status(404).json({ message: "Car or user not found" });
+        }
+
+        if (!user.rentedCars.includes(car._id)) {
+            return res.status(400).json({ message: "You haven't rented this car" });
+        }
+
+        car.available = true;
+        await car.save();
+
+        user.rentedCars = user.rentedCars.filter(
+            (rentedId) => rentedId.toString() !== car._id.toString()
+        );
+        await user.save();
+
+        res.json({ message: "Car returned successfully", car });
     } catch (err) {
-      res.status(500).json({ message: "Failed to return car", error: err.message });
+        res.status(500).json({ message: "Failed to return car", error: err.message });
     }
-  };
-  
+};
+
 
 
 // @desc Add new car (Admin only)
@@ -78,6 +79,22 @@ export const addCar = async (req, res) => {
         res.status(500).json({ message: "Error adding car", error: err.message });
     }
 };
+
+export const rentedCars = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).populate('rentedCars');
+        console.log(user);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.json({ rentedCars: user.rentedCars });
+    } catch (error) {
+        console.log("error while fetching rented cars ", error.message);
+        res.status(400).json({ messsage: "error while fetching rented cars", error })
+
+    }
+}
 
 // @desc Update car (Admin only)
 export const updateCar = async (req, res) => {

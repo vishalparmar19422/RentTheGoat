@@ -1,63 +1,100 @@
-import React from 'react';
-import { vehicles } from '../data/vehicles';
-import { Car as CarIcon, Star } from 'lucide-react';
+import { Car as CarIcon } from 'lucide-react';
+import { useAuth } from '../context/Authcontext';
+import axios from 'axios';
+import { useEffect } from 'react';
 
-function Cars() {
-  const cars = vehicles.filter(vehicle => vehicle.type === 'car');
+function RentedCars() {
+    const { rentedCars, setRentedCars, user, setUser, RentedCars } = useAuth();
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center space-x-4 mb-8">
-        <CarIcon className="h-8 w-8 text-blue-600" />
-        <h1 className="text-3xl font-bold text-gray-900">Available Cars</h1>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {cars.map((car) => (
-          <div key={car.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="relative h-48">
-              <img
-                src={car.image}
-                alt={`${car.make} ${car.model}`}
-                className="w-full h-full object-cover"
-              />
-              {car.featured && (
-                <div className="absolute top-2 right-2 bg-yellow-400 text-white p-1 rounded-full">
-                  <Star className="h-5 w-5" fill="currentColor" />
-                </div>
-              )}
+
+    // Calculate total bill
+    const totalBill = rentedCars.reduce((acc, car) => acc + car.rentPerDay, 0);
+
+    // Return car handler
+    const handleReturnCar = async (carId: string) => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.post(
+                `http://localhost:3000/api/cars/return/${carId}`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+
+            // Update context after return
+            const updatedRentedCars = rentedCars.filter((car) => car._id !== carId);
+            setRentedCars(updatedRentedCars);
+
+            // Also update user context
+            if (user) {
+                setUser({
+                    ...user,
+                    rentedCars: updatedRentedCars,
+                });
+            }
+
+        } catch (error) {
+            console.error('Failed to return car:', error);
+        }
+    };
+    useEffect(() => {
+        RentedCars();
+    }, [])
+
+    return (
+        <div className="container mx-auto px-4 py-8">
+            <div className="flex items-center space-x-4 mb-6">
+                <CarIcon className="h-8 w-8 text-blue-600" />
+                <h1 className="text-3xl font-bold text-gray-900">Your Rented Cars</h1>
             </div>
-            <div className="p-4">
-              <h2 className="text-xl font-semibold text-gray-900">
-                {car.make} {car.model}
-              </h2>
-              <p className="text-gray-600">{car.year}</p>
-              <div className="mt-2">
-                <span className="text-2xl font-bold text-blue-600">${car.price}</span>
-                <span className="text-gray-600">/day</span>
-              </div>
-              <div className="mt-4">
-                <h3 className="font-semibold text-gray-900 mb-2">Features:</h3>
-                <ul className="list-disc list-inside text-gray-600">
-                  {car.features.map((feature, index) => (
-                    <li key={index}>{feature}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="mt-4">
-                <span className="inline-block bg-gray-100 rounded-full px-3 py-1 text-sm font-semibold text-gray-700">
-                  {car.fuelType}
-                </span>
-              </div>
-              <button className="mt-4 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors">
-                Rent Now
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+
+            {rentedCars.length === 0 ? (
+                <p className="text-gray-600">You haven’t rented any cars yet.</p>
+            ) : (
+                <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                        {rentedCars.map((car) => (
+                            <div key={car._id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                                <div className="relative h-48">
+                                    <img
+                                        src={car.image}
+                                        alt={car.name}
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
+                                <div className="p-4">
+                                    <h2 className="text-xl font-semibold text-gray-900">{car.name}</h2>
+                                    <p className="text-gray-600">Brand: {car.brand}</p>
+                                    <p className="text-gray-600">Model: {car.model}</p>
+                                    <div className="mt-2">
+                                        <span className="text-2xl font-bold text-blue-600">${car.rentPerDay}</span>
+                                        <span className="text-gray-600"> / day</span>
+                                    </div>
+                                    <button
+                                        onClick={() => handleReturnCar(car._id)}
+                                        className="mt-4 w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors"
+                                    >
+                                        Return Car
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="text-right mt-4">
+                        <p className="text-xl font-semibold text-gray-800">
+                            Total Bill: <span className="text-blue-600">${totalBill}</span>
+                        </p>
+                    </div>
+                </>
+            )}
+        </div>
+    );
 }
 
-export default Cars;
+export default RentedCars;

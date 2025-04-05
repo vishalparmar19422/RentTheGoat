@@ -4,7 +4,6 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Cars from './pages/Cars';
-import Trucks from './pages/Trucks';
 import AdminUpload from './pages/AdminUpload';
 import { useAuth } from './context/Authcontext.tsx';
 import NotFound from './pages/NotFound.tsx';
@@ -24,7 +23,6 @@ function App() {
           {isAuthenticated && (
             <>
               <Route path="/cars" element={<Cars />} />
-              <Route path="/trucks" element={<Trucks />} />
               <Route path="/rentedcars" element={<RentedCars />} />
 
             </>
