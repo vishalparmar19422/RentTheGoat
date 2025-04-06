@@ -43,8 +43,9 @@ export const returnCar = async (req, res) => {
         if (!user.rentedCars.includes(car._id)) {
             return res.status(400).json({ message: "You haven't rented this car" });
         }
-
+        car.rentedBy = null;
         car.available = true;
+
         await car.save();
 
         user.rentedCars = user.rentedCars.filter(

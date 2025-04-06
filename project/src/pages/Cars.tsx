@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Car as CarIcon, Pencil, Trash2 } from 'lucide-react';
+import { Car as CarIcon, Pencil, Trash2, IndianRupee } from 'lucide-react';
 import { useAuth } from '../context/Authcontext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -78,7 +78,9 @@ function Cars() {
                 <p className="text-gray-600 mb-3">Model: {car.model}</p>
 
                 <div className="text-blue-600 text-xl font-semibold mb-4">
-                  ${car.rentPerDay} <span className="text-sm text-gray-600">/day</span>
+                  <div className="pric flex items-center">   <IndianRupee width={20} height={20} />
+                    {car.rentPerDay} <span className="text-sm text-gray-600">/day</span></div>
+
                 </div>
 
                 {user?.role === 'admin' ? (

@@ -32,7 +32,7 @@ const RenterDetails = () => {
         const res = await axios.get('http://localhost:3000/api/cars/renters', {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
+          },    
         });
         setRenters(res.data);
       } catch (err) {
